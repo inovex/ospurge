@@ -10,21 +10,39 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 from ospurge.resources import base
+import time
 import logging
 
 class Backups(base.ServiceResource):
     ORDER = 33
 
+    currently_deleting = {}
+
     def list(self):
         return self.cloud.list_volume_backups(search_opts={'sort': 'created_at:desc'})
 
+    def wait_for_deletion(id):
+        # wait until a backup is deleted 
+        sleep = 2
+        while True:
+            backup = self.cloud.get_volume_backup(id)
+            if backup is None:
+                return 
+            else:
+                time.sleep(sleep)
+
     def delete(self, resource):
-        self.cloud.delete_volume_backup(resource['id'], wait=True)
+        if resource['volume_id'] in self.currently_deleting:
+            wait_for_deletion(self.currently_deleting[resource['volume_id']])
+
+        self.currently_deleting[resource['volume_id']] = resource['id'] 
+        self.cloud.delete_volume_backup(resource['id'])
+
 
     @staticmethod
     def to_str(resource):
-        return "Volume Backup (id='{}', name='{}'".format(
-            resource['id'], resource['name'])
+        return "Volume Backup (id='{}', name='{}', VolID='{}".format(
+            resource['id'], resource['name'], resource['volume_id'])
 
 
 class Snapshots(base.ServiceResource):
