@@ -10,16 +10,16 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 from ospurge.resources import base
-
+import logging
 
 class Backups(base.ServiceResource):
     ORDER = 33
 
     def list(self):
-        return self.cloud.list_volume_backups()
+        return self.cloud.list_volume_backups(search_opts={'sort': 'created_at:desc'})
 
     def delete(self, resource):
-        self.cloud.delete_volume_backup(resource['id'])
+        self.cloud.delete_volume_backup(resource['id'], wait=True)
 
     @staticmethod
     def to_str(resource):
