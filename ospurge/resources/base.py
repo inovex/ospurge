@@ -142,7 +142,8 @@ class ServiceResource(six.with_metaclass(CodingStyleMixin,
         raise NotImplementedError
 
     def wait_for_check_prerequisite(self, exit):
-        timeout = time.time() + 120
+        # we have to wait for incremental backups to be deleted so we have to wait for quite a while
+        timeout = time.time() + 900
         sleep = 2
         while time.time() < timeout:
             if exit.is_set():
