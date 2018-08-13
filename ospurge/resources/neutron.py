@@ -10,6 +10,9 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 from ospurge.resources import base
+import logging
+
+
 
 
 class FloatingIPs(base.ServiceResource):
@@ -44,10 +47,16 @@ class RouterInterfaces(base.ServiceResource):
         )
 
     def list(self):
-        return self.cloud.list_ports(
+        router_interfaces = self.cloud.list_ports(
             filters={'device_owner': 'network:router_interface',
                      'tenant_id': self.cleanup_project_id}
         )
+        replicated_router_interfaces = self.cloud.list_ports(
+            filters={'device_owner': 'network:ha_router_replicated_interface',
+                     'tenant_id': self.cleanup_project_id}
+        )
+        return router_interfaces + replicated_router_interfaces
+        
 
     def delete(self, resource):
         self.cloud.remove_router_interface({'id': resource['device_id']},
@@ -63,10 +72,11 @@ class Routers(base.ServiceResource):
     ORDER = 44
 
     def check_prerequisite(self):
-        return self.cloud.list_ports(
-            filters={'device_owner': 'network:router_interface',
-                     'tenant_id': self.cleanup_project_id}
-        ) == []
+        ports = self.cloud.list_ports(
+                filters={'tenant_id': self.cleanup_project_id}
+            )
+        router_interfaces = ['network:router_interface', 'network:ha_router_replicated_interface']
+        return [p for p in ports if p['device_owner'] in router_interfaces] == []
 
     def list(self):
         return self.cloud.list_routers()
@@ -87,7 +97,7 @@ class Ports(base.ServiceResource):
         ports = self.cloud.list_ports(
             filters={'tenant_id': self.cleanup_project_id}
         )
-        excluded = ['network:dhcp', 'network:router_interface']
+        excluded = ['network:dhcp', 'network:router_interface', 'network:ha_router_replicated_interface']
         return [p for p in ports if p['device_owner'] not in excluded]
 
     def delete(self, resource):
