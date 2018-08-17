@@ -37,3 +37,14 @@ class Listeners(base.ServiceResource):
     @staticmethod
     def to_str(resource: Dict[str, Any]) -> str:
         ...
+
+class Pools(base.ServiceResource):
+    def list(self) -> Iterable:
+        ...
+
+    def delete(self, resource: Dict[str, Any]) -> None:
+        ...
+
+    @staticmethod
+    def to_str(resource: Dict[str, Any]) -> str:
+        ...

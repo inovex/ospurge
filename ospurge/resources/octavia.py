@@ -16,21 +16,20 @@ from keystoneauth1 import session
 from shade import meta
 import os
 import traceback
+from neutronclient.v2_0 import client
 
-class LoadBalancers(base.ServiceResource):
-    ORDER = 47
-        
-    def getClient(self):
-        authurl = os.environ.get("OS_AUTH_URL")
-        user_name = os.environ.get("OS_USERNAME")
-        pass_word = os.environ.get("OS_PASSWORD")
-        if "OS_PROJECT_NAME" in os.environ:
-            tenantname = os.environ.get("OS_PROJECT_NAME")
-        else:
-            tenantname = os.environ.get("OS_TENANT_NAME")
-        apiversion = os.environ.get("OS_IDENTITY_API_VERSION")
-        os_region_name = os.environ.get("OS_REGION_NAME")
-        os_project_id=os.environ.get("OS_PROJECT_ID")
+# shade does not have any functions for handling loadbalancers 
+# so we have to work on the "barebones" client
+def getOctaviaClient(options):
+        authurl = options.os_auth_url
+        user_name = options.os_username
+        pass_word = options.os_password
+        try:
+            tenantname = options.os_project_name
+        except AttributeError:
+            tenantname = options.os_tenant_name
+        os_region_name = options.os_region_name
+        os_project_id = options.os_project_id
 
         auth = identity.V3Password(auth_url=authurl,
                                username=user_name,
@@ -39,20 +38,22 @@ class LoadBalancers(base.ServiceResource):
                                project_name=tenantname,
                                project_domain_name='Default')
         sess = session.Session(auth=auth) 
-        network_client = self.cloud._get_raw_client('network')
-        endpoint = network_client.get_endpoint()
-        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
+        network_client = client.Client(session=sess)
+        return octavia.OctaviaAPI(endpoint = network_client.get_auth_info()['endpoint_url'], session=sess)
+
+class LoadBalancers(base.ServiceResource):
+    ORDER = 47
 
     def check_prerequisite(self):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         return meta.get_and_munchify('listeners', client.listener_list()) == [] and meta.get_and_munchify('pools', client.pool_list()) == []
 
     def list(self):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         return meta.get_and_munchify('loadbalancers', client.load_balancer_list())
 
     def delete(self, resource):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         try:
             client.load_balancer_delete(resource['id'])
         except Exception:
@@ -66,36 +67,17 @@ class LoadBalancers(base.ServiceResource):
 
 class Listeners(base.ServiceResource):
     ORDER = 41
-        
-    def getClient(self):
-        authurl = os.environ.get("OS_AUTH_URL")
-        user_name = os.environ.get("OS_USERNAME")
-        pass_word = os.environ.get("OS_PASSWORD")
-        if "OS_PROJECT_NAME" in os.environ:
-            tenantname = os.environ.get("OS_PROJECT_NAME")
-        else:
-            tenantname = os.environ.get("OS_TENANT_NAME")
-        apiversion = os.environ.get("OS_IDENTITY_API_VERSION")
-        os_region_name = os.environ.get("OS_REGION_NAME")
-        os_project_id=os.environ.get("OS_PROJECT_ID")
 
-        auth = identity.V3Password(auth_url=authurl,
-                               username=user_name,
-                               user_domain_name='Default',
-                               password=pass_word,
-                               project_name=tenantname,
-                               project_domain_name='Default')
-        sess = session.Session(auth=auth) 
-        network_client = self.cloud._get_raw_client('network')
-        endpoint = network_client.get_endpoint()
-        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
+    def check_prerequisite(self):
+        client = getOctaviaClient(self.options)
+        return meta.get_and_munchify('pools', client.pool_list()) == []
 
     def list(self):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         return meta.get_and_munchify('listeners', client.listener_list())
 
     def delete(self, resource):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         try:
             client.listener_delete(resource['id'])
         except Exception:
@@ -110,35 +92,12 @@ class Listeners(base.ServiceResource):
 class Pools(base.ServiceResource):
     ORDER = 40
         
-    def getClient(self):
-        authurl = os.environ.get("OS_AUTH_URL")
-        user_name = os.environ.get("OS_USERNAME")
-        pass_word = os.environ.get("OS_PASSWORD")
-        if "OS_PROJECT_NAME" in os.environ:
-            tenantname = os.environ.get("OS_PROJECT_NAME")
-        else:
-            tenantname = os.environ.get("OS_TENANT_NAME")
-        apiversion = os.environ.get("OS_IDENTITY_API_VERSION")
-        os_region_name = os.environ.get("OS_REGION_NAME")
-        os_project_id=os.environ.get("OS_PROJECT_ID")
-
-        auth = identity.V3Password(auth_url=authurl,
-                               username=user_name,
-                               user_domain_name='Default',
-                               password=pass_word,
-                               project_name=tenantname,
-                               project_domain_name='Default')
-        sess = session.Session(auth=auth) 
-        network_client = self.cloud._get_raw_client('network')
-        endpoint = network_client.get_endpoint()
-        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
-
     def list(self):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         return meta.get_and_munchify('pools', client.pool_list())
 
     def delete(self, resource):
-        client = self.getClient()
+        client = getOctaviaClient(self.options)
         try:
             client.pool_delete(resource['id'])
         except Exception:
