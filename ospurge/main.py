@@ -17,6 +17,7 @@ import operator
 import sys
 import threading
 import typing
+import traceback
 
 import os_client_config
 import shade
@@ -190,7 +191,7 @@ def runner(resource_mngr, options, exit):
     except Exception as exc:
         log = logging.error
         recoverable = False
-
+        #traceback.print_exc()
         def is_exception_recoverable(exc):
             if exc.__class__.__name__.lower().endswith('endpointnotfound'):
                 return True

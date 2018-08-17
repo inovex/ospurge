@@ -100,6 +100,7 @@ class ServiceResource(six.with_metaclass(CodingStyleMixin,
 
     def __init__(self, creds_manager):
         super(ServiceResource, self).__init__()
+
         if self.ORDER is None:
             raise ValueError(
                 'Class {}.{} must override the "ORDER" class attribute'.format(

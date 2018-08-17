@@ -11,7 +11,11 @@
 #  under the License.
 from ospurge.resources import base
 import logging
-
+import os
+from octaviaclient.api.v2 import octavia
+from keystoneauth1 import identity
+from keystoneauth1 import session
+from shade import meta
 
 
 
@@ -93,6 +97,33 @@ class Routers(base.ServiceResource):
 class Ports(base.ServiceResource):
     ORDER = 46
 
+    def getClient(self):
+        authurl = os.environ.get("OS_AUTH_URL")
+        user_name = os.environ.get("OS_USERNAME")
+        pass_word = os.environ.get("OS_PASSWORD")
+        if "OS_PROJECT_NAME" in os.environ:
+            tenantname = os.environ.get("OS_PROJECT_NAME")
+        else:
+            tenantname = os.environ.get("OS_TENANT_NAME")
+        apiversion = os.environ.get("OS_IDENTITY_API_VERSION")
+        os_region_name = os.environ.get("OS_REGION_NAME")
+        os_project_id=os.environ.get("OS_PROJECT_ID")
+
+        auth = identity.V3Password(auth_url=authurl,
+                               username=user_name,
+                               user_domain_name='Default',
+                               password=pass_word,
+                               project_name=tenantname,
+                               project_domain_name='Default')
+        sess = session.Session(auth=auth) 
+        network_client = self.cloud._get_raw_client('network')
+        endpoint = network_client.get_endpoint()
+        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
+
+    def check_prerequisite(self):
+        client = self.getClient()
+        return meta.get_and_munchify('loadbalancers', client.load_balancer_list()) == [] and self.cloud.list_volumes() == []
+
     def list(self):
         ports = self.cloud.list_ports(
             filters={'tenant_id': self.cleanup_project_id}
@@ -142,6 +173,33 @@ class Networks(base.ServiceResource):
 
 class SecurityGroups(base.ServiceResource):
     ORDER = 49
+
+    def getClient(self):
+        authurl = os.environ.get("OS_AUTH_URL")
+        user_name = os.environ.get("OS_USERNAME")
+        pass_word = os.environ.get("OS_PASSWORD")
+        if "OS_PROJECT_NAME" in os.environ:
+            tenantname = os.environ.get("OS_PROJECT_NAME")
+        else:
+            tenantname = os.environ.get("OS_TENANT_NAME")
+        apiversion = os.environ.get("OS_IDENTITY_API_VERSION")
+        os_region_name = os.environ.get("OS_REGION_NAME")
+        os_project_id=os.environ.get("OS_PROJECT_ID")
+
+        auth = identity.V3Password(auth_url=authurl,
+                               username=user_name,
+                               user_domain_name='Default',
+                               password=pass_word,
+                               project_name=tenantname,
+                               project_domain_name='Default')
+        sess = session.Session(auth=auth) 
+        network_client = self.cloud._get_raw_client('network')
+        endpoint = network_client.get_endpoint()
+        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
+
+    def check_prerequisite(self):
+        client = self.getClient()
+        return meta.get_and_munchify('loadbalancers', client.load_balancer_list()) == []
 
     def list(self):
         return [sg for sg in self.cloud.list_security_groups(

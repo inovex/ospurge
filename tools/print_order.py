@@ -15,7 +15,7 @@ import operator
 from ospurge import utils
 
 resource_managers = sorted(
-    [cls for cls in utils.get_all_resource_classes()],
+    [cls for cls in utils.get_resource_classes()],
     key=operator.methodcaller('order')
 )
 
