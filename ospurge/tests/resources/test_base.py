@@ -17,6 +17,7 @@ from ospurge import exceptions
 from ospurge.resources import base
 from ospurge.tests import mock
 from ospurge.tests import unittest
+import logging
 
 
 def generate_timeout_series(timeout):
@@ -207,14 +208,13 @@ class TestServiceResource(unittest.TestCase):
         mock_exit = mock.Mock(is_set=mock.Mock(return_value=False))
 
         with mock.patch('time.time') as mock_time:
-            mock_time.side_effect = generate_timeout_series(30)
+            mock_time.side_effect = generate_timeout_series(675)
             self.assertRaisesRegex(
                 exceptions.TimeoutError, "^Timeout exceeded .*",
                 resource_manager.wait_for_check_prerequisite, mock_exit
             )
-
         self.assertEqual(mock_check_prerequisite.call_args_list,
-                         [mock.call()] * (120 // 30 - 1))
+                         [mock.call()] * (2700 // 675 - 1))
         self.assertEqual(mock_sleep.call_args_list,
                          [mock.call(i) for i in (2, 4, 8)])
 

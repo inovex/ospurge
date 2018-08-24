@@ -19,7 +19,7 @@ class Backups(base.ServiceResource):
     currently_deleting = {}
 
     def list(self):
-        return self.cloud.list_volume_backups(search_opts={'sort': 'created_at:desc'})
+        return self.cloud.list_volume_backups()
 
     def wait_for_deletion(id):
         # wait until a backup is deleted 
