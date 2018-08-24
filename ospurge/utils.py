@@ -20,7 +20,7 @@ import re
 from ospurge.resources import base
 
 
-def get_resource_classes(resources=None):
+def get_resource_classes(resources=None, exclude_resources=None):
     """
     Import all the modules in the `resources` package and return all the
     subclasses of the `ServiceResource` ABC that match the `resources` arg.
@@ -45,6 +45,15 @@ def get_resource_classes(resources=None):
     # Otherwise, build a regex by concatenation.
     else:
         regex = re.compile('|'.join(resources))
+
+    if exclude_resources:
+        if not resources:
+            # get all resources
+            resource_classes = get_resource_classes()
+            resources = [r.__name__ for r in resource_classes]
+        resources = [r for r in resources if r not in exclude_resources]
+        regex = re.compile('|'.join(resources))
+
 
     return [c for c in all_classes if regex.match(c.__name__)]
 

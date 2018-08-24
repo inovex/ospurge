@@ -56,6 +56,14 @@ class TestUtils(unittest.TestCase):
         for klass in classes:
             self.assertTrue(issubclass(klass, ServiceResource))
 
+    def test_get_resource_classes_without_excluded(self):
+        config = "Networks"
+        classes = utils.get_resource_classes(None, config)
+        self.assertIsInstance(classes, typing.List)
+        for klass in classes:
+            self.assertTrue(issubclass(klass, ServiceResource))
+            self.assertNotEqual(config, klass.__name__)
+
     def test_call_and_ignore_notfound(self):
         def raiser():
             raise shade.exc.OpenStackCloudResourceNotFound("")

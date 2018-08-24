@@ -68,6 +68,12 @@ def create_argument_parser():
         help="Purge only the specified resource type. Repeat to delete "
              "several types at once."
     )
+    parser.add_argument(
+        "--exclude-resource", action="append",
+        choices=[cls.__name__ for cls in utils.get_resource_classes()],
+        help="Do not purge the specified resource type. Repeat to exclude "
+             "several types at once."
+    )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -228,7 +234,7 @@ def main():
 
     resource_managers = sorted(
         [cls(creds_manager)
-         for cls in utils.get_resource_classes(options.resource)],
+         for cls in utils.get_resource_classes(options.resource, options.exclude_resource)],
         key=operator.methodcaller('order')
     )
 
