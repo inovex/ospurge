@@ -16,6 +16,7 @@ from keystoneauth1 import identity
 from keystoneauth1 import session
 from shade import meta
 import ospurge.resources.octavia as octavia
+from ospurge.resources.neutron_vpnaas import getNeutronClient
 
 
 
@@ -122,7 +123,11 @@ class Networks(base.ServiceResource):
             filters={'tenant_id': self.cleanup_project_id}
         )
         excluded = ['network:dhcp']
-        return [p for p in ports if p['device_owner'] not in excluded] == []
+
+        client = getNeutronClient(self.options)
+        endpoint_groups = meta.get_and_munchify('endpoint_groups', client.list_endpoint_groups())
+         
+        return [p for p in ports if p['device_owner'] not in excluded] == [] and endpoint_groups == []
 
     def list(self):
         networks = []

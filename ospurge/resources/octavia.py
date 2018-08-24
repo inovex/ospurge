@@ -62,7 +62,7 @@ class LoadBalancers(base.ServiceResource):
 
     @staticmethod
     def to_str(resource):
-        return "VM (id='{}', name='{}')".format(
+        return "Load Balancer (id='{}', name='{}')".format(
             resource['id'], resource['name'])
 
 class Listeners(base.ServiceResource):
@@ -106,7 +106,7 @@ class Pools(base.ServiceResource):
 
     @staticmethod
     def to_str(resource):
-        return "VM (id='{}', name='{}')".format(
+        return "Pool (id='{}', name='{}')".format(
             resource['id'], resource['name'])
 
 
