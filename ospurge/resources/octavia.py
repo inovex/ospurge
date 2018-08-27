@@ -18,12 +18,14 @@ import os
 import traceback
 from neutronclient.v2_0 import client
 
+
 # shade does not have any functions for handling loadbalancers 
 # so we have to work on the "barebones" client
 def getOctaviaClient(options):
         authurl = options.os_auth_url
         user_name = options.os_username
         pass_word = options.os_password
+        #tenant name and project name is the same thing
         try:
             tenantname = options.os_project_name
         except AttributeError:
@@ -54,11 +56,7 @@ class LoadBalancers(base.ServiceResource):
 
     def delete(self, resource):
         client = getOctaviaClient(self.options)
-        try:
-            client.load_balancer_delete(resource['id'])
-        except Exception:
-            traceback.print_exc()
-            #pass
+        client.load_balancer_delete(resource['id'])
 
     @staticmethod
     def to_str(resource):
@@ -78,15 +76,11 @@ class Listeners(base.ServiceResource):
 
     def delete(self, resource):
         client = getOctaviaClient(self.options)
-        try:
-            client.listener_delete(resource['id'])
-        except Exception:
-            traceback.print_exc()
-            #pass
+        client.listener_delete(resource['id'])
 
     @staticmethod
     def to_str(resource):
-        return "VM (id='{}', name='{}')".format(
+        return "Listener (id='{}', name='{}')".format(
             resource['id'], resource['name'])
 
 class Pools(base.ServiceResource):
@@ -98,11 +92,7 @@ class Pools(base.ServiceResource):
 
     def delete(self, resource):
         client = getOctaviaClient(self.options)
-        try:
-            client.pool_delete(resource['id'])
-        except Exception:
-            traceback.print_exc()
-            #pass
+        client.pool_delete(resource['id'])
 
     @staticmethod
     def to_str(resource):
