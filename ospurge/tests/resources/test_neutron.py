@@ -167,18 +167,20 @@ class TestNetworks(unittest.TestCase):
         self.cloud = mock.Mock(spec_set=shade.openstackcloud.OpenStackCloud)
         self.creds_manager = mock.Mock(cloud=self.cloud)
 
+    @mock.patch('ospurge.resources.neutron.getNeutronClient', mock.Mock())
     def test_check_prerequisite(self):
-        self.cloud.list_ports.return_value = [{'device_owner': 'network:dhcp'}]
-        self.assertEqual(
-            True, neutron.Networks(self.creds_manager).check_prerequisite())
+        with mock.patch('shade.meta.get_and_munchify', return_value=[]):
+            self.cloud.list_ports.return_value = [{'device_owner': 'network:dhcp'}]
+            self.assertEqual(
+                True, neutron.Networks(self.creds_manager).check_prerequisite())
 
-        self.cloud.list_ports.return_value = [{'device_owner': 'compute:None'}]
-        self.assertEqual(
-            False, neutron.Networks(self.creds_manager).check_prerequisite())
+            self.cloud.list_ports.return_value = [{'device_owner': 'compute:None'}]
+            self.assertEqual(
+                False, neutron.Networks(self.creds_manager).check_prerequisite())
 
-        self.cloud.list_ports.assert_called_with(
-            filters={'tenant_id': self.creds_manager.project_id}
-        )
+            self.cloud.list_ports.assert_called_with(
+                filters={'tenant_id': self.creds_manager.project_id}
+            )
 
     def test_list(self):
         self.creds_manager.options.delete_shared_resources = False
