@@ -1,6 +1,12 @@
 OpenStack project resources cleaner
 ===================================
+This fork of OSPurge includes support for:
 
+* VPNaaS resources
+
+* LBaaS resources
+
+* a new option 'exclude-resource' that allows to exclude resources from deletion 
 What is OSPurge ?
 -----------------
 
