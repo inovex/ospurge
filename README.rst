@@ -7,6 +7,9 @@ This fork of OSPurge includes support for:
 * LBaaS resources
 
 * a new option 'exclude-resource' that allows to exclude resources from deletion 
+
+* incremental backup deletion
+
 What is OSPurge ?
 -----------------
 
