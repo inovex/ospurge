@@ -21,8 +21,9 @@ class Backups(base.ServiceResource):
     def list(self):
         return self.cloud.list_volume_backups()
 
-    def wait_for_deletion(id):
+    def wait_for_deletion(self, id):
         # wait until a backup is deleted 
+        logging.log("Waiting for deletion of backup with id " + str(id))
         sleep = 2
         while True:
             backup = self.cloud.get_volume_backup(id)
@@ -33,7 +34,7 @@ class Backups(base.ServiceResource):
 
     def delete(self, resource):
         if resource['volume_id'] in self.currently_deleting:
-            wait_for_deletion(self.currently_deleting[resource['volume_id']])
+            self.wait_for_deletion(self.currently_deleting[resource['volume_id']])
 
         self.currently_deleting[resource['volume_id']] = resource['id'] 
         self.cloud.delete_volume_backup(resource['id'])

@@ -17,6 +17,7 @@ from shade import meta
 import os
 import traceback
 from neutronclient.v2_0 import client
+import logging
 
 
 # shade does not have any functions for handling loadbalancers 
@@ -44,7 +45,7 @@ def getOctaviaClient(options):
         return octavia.OctaviaAPI(endpoint = network_client.get_auth_info()['endpoint_url'], session=sess)
 
 class LoadBalancers(base.ServiceResource):
-    ORDER = 47
+    ORDER = 43
 
     def check_prerequisite(self):
         client = getOctaviaClient(self.options)
