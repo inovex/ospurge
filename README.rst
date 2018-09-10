@@ -39,7 +39,8 @@ At the moment it is possible to purge the following resources from a project:
 * Swift containers
 * Swift objects
 * Volumes / Volume snapshots / Volume backups
-
+* Load Balancers / Pools / Listeners
+* VPN services / IPSec site connections / IPSec policies / IKE policies / Endpoint Groups 
 
 Exit codes
 ----------
