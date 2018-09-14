@@ -69,7 +69,7 @@ def create_argument_parser():
              "several types at once."
     )
     parser.add_argument(
-        "--exclude-resource", action="append",
+        "--excluderesource", action="append",
         choices=[cls.__name__ for cls in utils.get_resource_classes()],
         help="Do not purge the specified resource type. Repeat to exclude "
              "several types at once."
@@ -171,7 +171,6 @@ def runner(resource_mngr, options, exit):
 
         if not (options.dry_run or options.resource):
             resource_mngr.wait_for_check_prerequisite(exit)
-
         for resource in resource_mngr.list():
             # No need to continue if requested to exit.
             if exit.is_set():
@@ -234,7 +233,7 @@ def main():
 
     resource_managers = sorted(
         [cls(creds_manager)
-         for cls in utils.get_resource_classes(options.resource, options.exclude_resource)],
+         for cls in utils.get_resource_classes(options.resource, options.excluderesource)],
         key=operator.methodcaller('order')
     )
 
