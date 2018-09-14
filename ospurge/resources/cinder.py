@@ -23,7 +23,7 @@ class Backups(base.ServiceResource):
 
     def wait_for_deletion(self, id):
         # wait until a backup is deleted 
-        logging.log("Waiting for deletion of backup with id " + str(id))
+        logging.info("Waiting for deletion of backup with id " + str(id))
         sleep = 2
         while True:
             backup = self.cloud.get_volume_backup(id)
