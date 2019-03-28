@@ -16,7 +16,6 @@ from keystoneauth1 import session
 from shade import meta
 import os
 import traceback
-from neutronclient.v2_0 import client
 import logging
 
 
@@ -41,8 +40,8 @@ def getOctaviaClient(options):
                                project_name=tenantname,
                                project_domain_name='Default')
         sess = session.Session(auth=auth) 
-        network_client = client.Client(session=sess)
-        return octavia.OctaviaAPI(endpoint = network_client.get_auth_info()['endpoint_url'], session=sess)
+        endpoint = sess.get_endpoint(service_type = 'load-balancer', region_name = os_region_name)
+        return octavia.OctaviaAPI(endpoint = endpoint, session=sess)
 
 class LoadBalancers(base.ServiceResource):
     ORDER = 43
