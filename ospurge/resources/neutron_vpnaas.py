@@ -34,7 +34,7 @@ def getNeutronClient(options):
                                project_name=tenantname,
                                project_domain_name='Default')
         sess = session.Session(auth=auth) 
-        network_client = client.Client(session=sess)
+        network_client = client.Client(session=sess, region_name=os_region_name)
         return network_client
 
 class IpSecSiteConnections(base.ServiceResource):
