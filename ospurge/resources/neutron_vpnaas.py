@@ -24,12 +24,8 @@ def getNeutronClient(options):
         authurl = options.os_auth_url
         user_name = options.os_username
         pass_word = options.os_password
-        try:
-            tenantname = options.os_project_name
-        except AttributeError:
-            tenantname = options.os_tenant_name
+        tenantname = options.purge_project
         os_region_name = options.os_region_name
-        os_project_id = options.os_project_id
 
         auth = identity.V3Password(auth_url=authurl,
                                username=user_name,
